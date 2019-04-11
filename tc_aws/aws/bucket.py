@@ -44,6 +44,10 @@ class Bucket(object):
             if endpoint is not None:
                 self._session.unregister('before-sign.s3', fix_s3_host)
 
+            # Ensure Bucket object is not persisted if the session cannot fetch credentials
+            if self._session.get_credentials() is None:
+                raise ValueError('Cannot retrieve credentials')
+
         if not hasattr(self, '_get_client'):
             self._get_client = Botocore(service='s3', region_name=self._region,
                                         operation='GetObject', session=self._session,
